@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1100">
+<title>Rámec jako čočka — Metodologický dokument</title>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F3F2F7;
+    --card: #FFFFFF;
+    --ink: #1F1F28;
+    --ink-soft: #4A4A56;
+    --muted: #6B6B7A;
+    --faint: #8B8B98;
+    --hairline: #EAEAF0;
+    --hairline-soft: #F2F1F6;
+    --wash: #E8E5F5;
+    --coral: #E89B92;
+    --coral-soft: #FBE4E0;
+    --coral-ink: #8C3F38;
+    --mint: #C5E0D5;
+    --mint-soft: #E8F2EC;
+    --mint-ink: #2E5C47;
+    --lavender-soft: #EFEDF5;
+    --lavender-ink: #4A3F6B;
+    --code-bg: #F7F6FA;
+    --shadow: 0 1px 2px rgba(31, 31, 40, 0.04), 0 8px 24px rgba(31, 31, 40, 0.04);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'General Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    max-width: 1240px;
+    margin: 0 auto;
+    min-height: 100vh;
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    padding: 40px 24px 32px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    overflow-y: auto;
+  }
+
+  .sidebar-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .label {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+
+  .sidebar-title {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0;
+    color: var(--ink);
+    line-height: 1.25;
+  }
+
+  /* progress widget */
+  .progress-widget {
+    background: var(--card);
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+
+  .progress-widget-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+
+  .progress-widget .count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .progress-bar {
+    height: 3px;
+    background: var(--hairline-soft);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--coral);
+    border-radius: 2px;
+    transition: width 240ms ease;
+    width: 0%;
+  }
+
+  .phase-nav {
+    flex: 1;
+  }
+
+  .phase-nav .label {
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  .phase-nav ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .phase-nav a {
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
+    align-items: baseline;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--ink-soft);
+    font-size: 14px;
+    line-height: 1.4;
+    transition: background 120ms ease, color 120ms ease;
+    border-left: 2px solid transparent;
+    margin-left: -2px;
+  }
+
+  .phase-nav a:hover {
+    background: var(--hairline-soft);
+    color: var(--ink);
+  }
+
+  .phase-nav a.active {
+    background: var(--wash);
+    color: var(--ink);
+    font-weight: 500;
+    border-left-color: var(--coral);
+  }
+
+  .phase-nav .num {
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
+    color: var(--faint);
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .phase-nav a.active .num {
+    color: var(--coral-ink);
+  }
+
+  .phase-progress {
+    font-size: 10px;
+    color: var(--faint);
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    opacity: 0;
+    transition: opacity 120ms;
+  }
+
+  .phase-progress.has-progress {
+    opacity: 1;
+  }
+
+  .phase-progress.complete {
+    color: var(--coral-ink);
+  }
+
+  .sidebar-footer {
+    font-size: 11.5px;
+    color: var(--faint);
+    line-height: 1.5;
+    padding-top: 16px;
+    border-top: 1px solid var(--hairline);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .sidebar-footer kbd {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--hairline-soft);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 10px;
+    border: 1px solid var(--hairline);
+    color: var(--ink-soft);
+  }
+
+  .reset-btn {
+    background: transparent;
+    border: none;
+    color: var(--faint);
+    font-family: 'General Sans', sans-serif;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    text-align: left;
+  }
+
+  .reset-btn:hover {
+    color: var(--coral-ink);
+  }
+
+  /* ===== CONTENT ===== */
+  .content {
+    padding: 40px 0 80px 0;
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 64px 80px;
+    max-width: 820px;
+  }
+
+  /* ===== INTRO ===== */
+  .intro {
+    margin-bottom: 32px;
+  }
+
+  .intro-header { margin-bottom: 32px; }
+
+  .intro h1 {
+    font-size: 44px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin: 12px 0 16px 0;
+    color: var(--ink);
+  }
+
+  .intro .subtitle {
+    font-size: 18px;
+    color: var(--muted);
+    line-height: 1.45;
+    margin: 0;
+    max-width: 620px;
+  }
+
+  .meta-strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 32px;
+    padding: 24px 0;
+    margin: 32px 0;
+    border-top: 1px solid var(--hairline);
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .meta-item .label {
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .meta-item span:last-child {
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+
+  /* motivation block */
+  .motivation {
+    background: var(--lavender-soft);
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin: 32px 0;
+  }
+
+  .motivation .label {
+    color: var(--lavender-ink);
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  .motivation h3 {
+    margin: 16px 0 6px 0;
+    font-size: 14px;
+    color: var(--lavender-ink);
+    font-weight: 600;
+  }
+
+  .motivation h3:first-of-type {
+    margin-top: 0;
+  }
+
+  .motivation p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+
+  .thesis {
+    background: var(--mint-soft);
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin: 32px 0;
+  }
+
+  .thesis .label {
+    color: var(--mint-ink);
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .thesis p {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* model block */
+  .model-block {
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin: 32px 0;
+    background: var(--card);
+  }
+
+  /* framing note — rámcová poznámka k literatuře */
+  .framing-note {
+    border-left: 3px solid var(--ink);
+    padding: 4px 0 4px 24px;
+    margin: 32px 0;
+  }
+
+  .framing-note .label {
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  .framing-note h3 {
+    margin: 16px 0 6px 0;
+    font-size: 14px;
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .framing-note h3:first-of-type {
+    margin-top: 0;
+  }
+
+  .framing-note p {
+    margin: 0 0 12px 0;
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+  }
+
+  .framing-note p:last-child {
+    margin-bottom: 0;
+  }
+
+  .framing-note cite {
+    font-style: italic;
+    color: var(--muted);
+  }
+
+  .model-block .label {
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  .model-block h3 {
+    margin: 20px 0 8px 0;
+    font-size: 14px;
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .model-block h3:first-of-type {
+    margin-top: 0;
+  }
+
+  .model-block p {
+    margin: 0 0 12px 0;
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+
+  .model-block ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 14.5px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+
+  .model-block li {
+    margin-bottom: 4px;
+  }
+
+  .model-block code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    background: var(--code-bg);
+    padding: 1px 6px;
+    border-radius: 3px;
+    border: 1px solid var(--hairline);
+    color: var(--ink);
+  }
+
+  .map {
+    margin-top: 32px;
+  }
+
+  .map .label {
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  .map ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: phase;
+  }
+
+  .map li {
+    counter-increment: phase;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--hairline-soft);
+    display: grid;
+    grid-template-columns: 28px 180px 1fr;
+    gap: 16px;
+    align-items: baseline;
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+
+  .map li::before {
+    content: counter(phase, decimal-leading-zero);
+    color: var(--faint);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+
+  .map li strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* ===== PHASES ===== */
+  .phase {
+    margin-top: 32px;
+    scroll-margin-top: 24px;
+  }
+
+  .phase-header {
+    margin-bottom: 28px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .phase-pill {
+    display: inline-block;
+    background: var(--coral-soft);
+    color: var(--coral-ink);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  .phase h2 {
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+    margin: 0 0 8px 0;
+    color: var(--ink);
+  }
+
+  .phase-tagline {
+    font-size: 16px;
+    color: var(--muted);
+    line-height: 1.4;
+    margin: 0;
+    font-style: italic;
+  }
+
+  .phase section {
+    margin-bottom: 28px;
+  }
+
+  .phase section > .label {
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  .phase p {
+    margin: 0 0 14px 0;
+    line-height: 1.65;
+    color: var(--ink-soft);
+  }
+
+  .phase p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* ===== CHECKBOX ACTIONS ===== */
+  .phase ol.actions {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: act;
+  }
+
+  .phase ol.actions li {
+    counter-increment: act;
+    padding: 12px 0 12px 56px;
+    position: relative;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    border-bottom: 1px solid var(--hairline-soft);
+    transition: color 160ms;
+  }
+
+  .phase ol.actions li:last-child {
+    border-bottom: none;
+  }
+
+  .phase ol.actions li::before {
+    content: counter(act, decimal-leading-zero);
+    position: absolute;
+    left: 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--faint);
+    top: 16px;
+    letter-spacing: 0.02em;
+  }
+
+  .phase ol.actions input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    position: absolute;
+    left: 0;
+    top: 14px;
+    width: 20px;
+    height: 20px;
+    border: 1.5px solid var(--hairline);
+    border-radius: 5px;
+    background: var(--card);
+    cursor: pointer;
+    transition: background 120ms, border-color 120ms;
+    margin: 0;
+  }
+
+  .phase ol.actions input[type="checkbox"]:hover {
+    border-color: var(--coral);
+  }
+
+  .phase ol.actions input[type="checkbox"]:checked {
+    background: var(--coral);
+    border-color: var(--coral);
+  }
+
+  .phase ol.actions input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 6px;
+    height: 11px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  .phase ol.actions input[type="checkbox"]:focus-visible {
+    outline: 2px solid var(--coral-ink);
+    outline-offset: 2px;
+  }
+
+  .phase ol.actions li label {
+    cursor: pointer;
+    display: block;
+  }
+
+  .phase ol.actions li strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .phase ol.actions li.checked {
+    color: var(--faint);
+  }
+
+  .phase ol.actions li.checked label {
+    color: var(--faint);
+  }
+
+  .phase ol.actions li.checked strong {
+    color: var(--muted);
+    text-decoration: line-through;
+    text-decoration-color: var(--hairline);
+  }
+
+  /* ===== RISK / CALLOUT ===== */
+  .risk {
+    border-left: 2px solid var(--ink);
+    padding: 4px 0 4px 20px;
+    margin-top: 32px;
+  }
+
+  .risk .label {
+    color: var(--ink);
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .risk p {
+    margin: 0;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+
+  /* ===== PHASE 03 BLOCKS ===== */
+  .constants {
+    background: var(--mint-soft);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+
+  .constants .label {
+    color: var(--mint-ink);
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .constants ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .constants li {
+    padding: 3px 0;
+    color: var(--ink-soft);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .constants li::before {
+    content: '— ';
+    color: var(--faint);
+  }
+
+  .variable {
+    background: var(--coral-soft);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+
+  .variable .label {
+    color: var(--coral-ink);
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .variable p {
+    margin: 0;
+    color: var(--ink-soft);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  /* ===== PROMPT BLOCKS ===== */
+  .prompt-block {
+    margin: 20px 0;
+  }
+
+  .prompt-block .prompt-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 0 0 8px 0;
+    border-bottom: 1px solid var(--hairline);
+    margin-bottom: 12px;
+  }
+
+  .prompt-block .prompt-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .prompt-block .prompt-status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    color: var(--coral-ink);
+    background: var(--coral-soft);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .prompt-block pre {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 18px 20px;
+    margin: 0;
+    overflow-x: auto;
+    border: 1px solid var(--hairline);
+  }
+
+  .prompt-block code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--ink);
+    white-space: pre;
+  }
+
+  .anchor-callout {
+    background: var(--wash);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 20px 0;
+  }
+
+  .anchor-callout .label {
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  .anchor-callout dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 6px 16px;
+    font-size: 14px;
+  }
+
+  .anchor-callout dt {
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .anchor-callout dd {
+    margin: 0;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+
+  .anchor-callout dd code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    background: var(--card);
+    padding: 1px 6px;
+    border-radius: 3px;
+    border: 1px solid var(--hairline);
+  }
+
+  /* ===== INLINE ELEMENTS ===== */
+  em {
+    color: var(--ink);
+    font-style: italic;
+  }
+
+  strong {
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .phase p code, .phase li code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: var(--code-bg);
+    padding: 1px 6px;
+    border-radius: 3px;
+    border: 1px solid var(--hairline);
+    color: var(--ink);
+  }
+
+  /* ===== PRINT ===== */
+  @media print {
+    body { background: white; }
+    .layout {
+      display: block;
+      max-width: 100%;
+    }
+    .sidebar { display: none; }
+    .content { padding: 0; }
+    .card {
+      box-shadow: none;
+      border-radius: 0;
+      padding: 0;
+      max-width: 100%;
+    }
+    .phase { page-break-before: always; }
+    .intro { page-break-after: always; }
+    h1, h2 { color: black; }
+    .phase ol.actions input[type="checkbox"] {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  }
+
+  /* ===== RESPONSIVE FALLBACK ===== */
+  @media (max-width: 900px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
+    .sidebar {
+      position: relative;
+      height: auto;
+      padding: 24px 24px 16px 24px;
+    }
+    .card {
+      padding: 40px 32px;
+      margin: 0 16px;
+    }
+    .intro h1 { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="sidebar-meta">
+      <span class="label">Metodologický dokument</span>
+      <h1 class="sidebar-title">Rámec<br>jako čočka</h1>
+    </div>
+
+    <div class="progress-widget">
+      <div class="progress-widget-top">
+        <span class="label">Postup replikace</span>
+        <span class="count"><span id="progress-checked">0</span>/<span id="progress-total">0</span></span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-bar-fill" id="progress-fill"></div>
+      </div>
+    </div>
+
+    <nav class="phase-nav" aria-label="Navigace fázemi">
+      <span class="label">Fáze</span>
+      <ol>
+        <li><a href="#intro"><span class="num">·</span><span>Přehled</span><span class="phase-progress"></span></a></li>
+        <li><a href="#phase-1"><span class="num">01</span><span>Východisko</span><span class="phase-progress" data-phase="1"></span></a></li>
+        <li><a href="#phase-2"><span class="num">02</span><span>Základní čtení</span><span class="phase-progress" data-phase="2"></span></a></li>
+        <li><a href="#phase-3"><span class="num">03</span><span>Vzorkování a kotvy</span><span class="phase-progress" data-phase="3"></span></a></li>
+        <li><a href="#phase-4"><span class="num">04</span><span>Návrh promptů</span><span class="phase-progress" data-phase="4"></span></a></li>
+        <li><a href="#phase-5"><span class="num">05</span><span>Pilot</span><span class="phase-progress" data-phase="5"></span></a></li>
+        <li><a href="#phase-6"><span class="num">06</span><span>Produkční běhy</span><span class="phase-progress" data-phase="6"></span></a></li>
+        <li><a href="#phase-7"><span class="num">07</span><span>Audit</span><span class="phase-progress" data-phase="7"></span></a></li>
+        <li><a href="#phase-8"><span class="num">08</span><span>Syntéza</span><span class="phase-progress" data-phase="8"></span></a></li>
+      </ol>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div>Šipkami <kbd>←</kbd> <kbd>→</kbd> mezi fázemi, nebo klikem v navigaci výše.</div>
+      <button class="reset-btn" id="reset-progress">Resetovat průběh</button>
+    </div>
+  </aside>
+
+  <!-- ===== CONTENT ===== -->
+  <main class="content">
+    <div class="card">
+
+      <!-- ===== INTRO ===== -->
+      <section id="intro" class="intro">
+        <header class="intro-header">
+          <span class="label">Metodologický dokument · Před spuštěním experimentu</span>
+          <h1>Rámec jako čočka</h1>
+          <p class="subtitle">Tři rámce, jeden přepis, jeden malý model. Test toho, jak volba rámce mění to, co AI v datech vidí — a co naopak ne.</p>
+        </header>
+
+        <div class="meta-strip">
+          <div class="meta-item">
+            <span class="label">Model</span>
+            <span>Qwen3-4B-Instruct-2507 · Q4_K_M GGUF</span>
+          </div>
+          <div class="meta-item">
+            <span class="label">Hardware</span>
+            <span>MacBook Air M2 · 8 GB unified memory</span>
+          </div>
+          <div class="meta-item">
+            <span class="label">Dataset</span>
+            <span>125 přepisů · rozhovory vedené AI · kreativní profesionálové</span>
+          </div>
+          <div class="meta-item">
+            <span class="label">Porovnávané rámce</span>
+            <span>Tematická analýza · JTBD · JTBD &#43; zákaznická cesta</span>
+          </div>
+        </div>
+
+        <!-- ===== MOTIVATION ===== -->
+        <div class="motivation">
+          <span class="label">Motivace</span>
+
+          <h3>1. Otestovat lokální model na běžném hardwaru</h3>
+          <p>Chci vědět, jestli lokální model, který umí česky, zvládne běžet na obyčejném notebooku (MacBook Air M2, 8&nbsp;GB) a dát výsledky aspoň částečně srovnatelné s Claudem Opus 4. Nejde o benchmarky, ale o reálnou výzkumnou práci. Tenhle konkrétní experiment běží na anglických datech — jazyková schopnost modelu se posuzuje obecně.</p>
+
+          <h3>2. Otestovat cvičení „Stejná data, jiný rámec"</h3>
+          <p>Tři analytické rámce — tematická analýza (Braun &amp; Clarke), Jobs-to-be-Done a JTBD&nbsp;+&nbsp;zákaznická cesta — aplikované na stejný přepis. Porovnání má ukázat, jak rámec určuje, co AI v datech „vidí". Není to test, který rámec je lepší. Je to test toho, jak samotná volba rámce mění, co se vůbec počítá jako nález.</p>
+        </div>
+
+        <div class="thesis">
+          <span class="label">Pracovní teze</span>
+          <p>Rámec, který AI dáte, není neutrální způsob, jak data uspořádat. Je to instrukce o tom, čeho si všímat. Tři různé rámce, pouštěné stejným modelem na stejný přepis, vyrobí tři různé „uživatele".</p>
+        </div>
+
+        <!-- ===== MODEL JUSTIFICATION ===== -->
+        <div class="model-block">
+          <span class="label">Model a jeho meze</span>
+
+          <h3>Proč Qwen3-4B-Instruct-2507 (Q4_K_M)</h3>
+          <p>Volba je kompromis s hardwarem. MacBook Air M2 s 8&nbsp;GB má v praxi volných ~5–5,5&nbsp;GB poté, co si systém vezme svoje. Qwen3-4B v kvantizaci Q4_K_M zabírá ~3&nbsp;GB. Vejde se s rezervou na delší kontext — to potřebuju.</p>
+          <p>Aktualizace z července 2025 přinesla výrazně lepší poslušnost zadání (instruction following) a podporu 100+ jazyků včetně češtiny. V benchmarcích model porazil Gemmu 3 4B napříč všemi sledovanými kategoriemi a na RAG úlohách dosáhl 83 %. Pro analytickou práci s přepisy to stačí.</p>
+          <p>Místo MLX volím formát GGUF: pro 4B modely a delší kontext je llama.cpp backend stabilnější a rychlostně srovnatelný.</p>
+
+          <h3>Co model neumí oproti Claudu Opus</h3>
+          <ul>
+            <li><strong>Číst mezi řádky.</strong> Model zachytí to, co účastník řekne explicitně, ale často přehlédne to, co řekne nepřímo — nebo to, co nedořekne.</li>
+            <li><strong>Reflexivitu</strong> podle Braun &amp; Clarke (2019). Model neumí přemýšlet o vlastní pozici. To zůstává na člověku.</li>
+            <li><strong>Jemný kulturní kontext češtiny</strong> — idiomy, ironie, register. Občas mu uniká.</li>
+            <li><strong>Delší přepisy.</strong> Když dáte modelu víc než zhruba 10&nbsp;000 tokenů, na 8&nbsp;GB notebooku mu začne klesat pozornost. Proto pracuju s jedním přepisem najednou, ne s celým datasetem.</li>
+          </ul>
+
+          <h3>Proč to není slabina experimentu, ale jeho podmínka</h3>
+          <p>Menší model víc poslouchá zadání. Když mu řeknu „dívej se na to očima JTBD", drží se toho přísněji, než kdyby měl víc rezervy v parametrech. A přesně to potřebuju — efekt rámce má být <em>viditelný</em>. Větší model by si dovolil zadání obejít. Malý ne. Hardwarové omezení je tu nakonec metodologická výhoda, ne kompromis.</p>
+        </div>
+
+        <!-- ===== FRAMING NOTE — Disruptive Research ===== -->
+        <div class="framing-note">
+          <span class="label">Poznámka k pozici v literatuře</span>
+
+          <p>Marine ve své knize <cite>Disruptive Research</cite> (2023) považuje JTBD i customer journey maps za rámce, které <em>strukturálně přehlížejí</em> klíčové věci — triggery, knowledge requirements, oddělené kroky systému a uživatele. Náš experiment ale není o tom, který rámec je nejlepší pro hledání unmet needs. Je o něčem jiném: jak rámec tvaruje to, co AI v datech vidí.</p>
+
+          <p>Marineho kritika nám tedy nebourá experiment — naopak. Pokud má pravdu, že tyhle rámce něco strukturálně přehlížejí, audit (Fáze 07) by to měl ukázat jako konkrétní absence. Mapa absencí pak dostává jasnou strukturu: identifikuje rámec triggery? Knowledge requirements? Negativní cesty?</p>
+
+          <p>A jedno poctivé slovo: Marine je výborný a má za sebou desítky let praxe. Ale je to <em>jedna škola</em>. Braun &amp; Clarke, Norman, Cooper, Levitt — každý má svůj „svatý grál" a v některých věcech se navzájem vylučují. Náš experiment dělá něco, co ani jeden z nich neřeší: ukazuje, jak ten „grál" tvaruje to, co najdeme.</p>
+        </div>
+
+        <div class="map">
+          <span class="label">Obsah dokumentu</span>
+          <ol>
+            <li><strong>Východisko</strong><span>O co tu jde a proč to malý model nepustí pod stůl</span></li>
+            <li><strong>Základní čtení</strong><span>Přečíst si data sám, než to udělá model</span></li>
+            <li><strong>Vzorkování a kotvy</strong><span>Ze 125 přepisů k jednomu, na kterém to ukážu</span></li>
+            <li><strong>Návrh promptů</strong><span>Jediné, co se mezi běhy mění — sepsat a zamknout</span></li>
+            <li><strong>Pilot</strong><span>Zkouška na kotvě, než pustím produkční běh</span></li>
+            <li><strong>Produkční běhy</strong><span>Pustit to ve smyčce, ne ručně přes chat</span></li>
+            <li><strong>Audit</strong><span>Co každý rámec chytil, co přehlédl, co si vymyslel</span></li>
+            <li><strong>Syntéza</strong><span>Zaujmout pozici, přiznat limity</span></li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ===== PHASE 1 — Východisko ===== -->
+      <article id="phase-1" class="phase">
+        <header class="phase-header">
+          <span class="phase-pill">Fáze 01</span>
+          <h2>Východisko</h2>
+          <p class="phase-tagline">O co tu jde a proč to malý model nepustí pod stůl</p>
+        </header>
+
+        <section>
+          <span class="label">Proč</span>
+          <p>Když výzkumník dá AI přepis rozhovoru spolu s analytickým rámcem — tematickou analýzou, JTBD, JTBD plus zákaznickou cestou — rámec není neutrální způsob, jak data uspořádat. Je to instrukce, čeho si všímat. AI nečte data a pak si nevybírá, jak je číst. Dostane od začátku zadané, co se vůbec počítá jako data. Volba rámce tedy předem rozhoduje o tom, co najdeme.</p>
+          <p>Hardware na tom má svůj podíl. Menší model víc poslouchá zadání — a tím dělá vliv rámce viditelnějším. AI tu není transparentní čtenář dat. Je součást toho, co se v experimentu zkoumá.</p>
+        </section>
+
+        <section>
+          <span class="label">Akce</span>
+          <ol class="actions">
+            <li>
+              <input type="checkbox" id="act-1-1">
+              <label for="act-1-1"><strong>Sepsat pracovní tezi písemně</strong> ještě před jakýmkoli během modelu. Revidovat ji až po auditu — ne mlčky odhodit.</label>
+            </li>
+            <li>
+              <input type="checkbox" id="act-1-2">
+              <label for="act-1-2"><strong>Vymezit rozsah tvrzení.</strong> Závěry platí pro <em>tento model, tento prompt, tuhle aplikaci</em>. Ne pro „AI" obecně.</label>
+            </li>
+            <li>
+              <input type="checkbox" id="act-1-3">
+              <label for="act-1-3"><strong>Přiznat aparát</strong> v metodologické sekci. Model, kvantizace, hardware, struktura promptu — všechno to je metodologie, ne pozadí.</label>
+            </li>
+          </ol>
+        </section>
+
+        <aside class="risk">
+          <span class="label">Rozhodnutí · Riziko</span>
+          <p>Bude svádět tyhle závěry zobecnit na „co AI dělá s kvalitativním výzkumem". Je to silné pokušení a je to chyba. Smysl experimentu drží jen tehdy, když tvrzení neodtrhávám od konkrétního aparátu.</p>
+        </aside>
+      </article>
+
+      <!-- ===== PHASE 2 — Základní čtení ===== -->
+      <article id="phase-2" class="phase">
+        <header class="phase-header">
+          <span class="phase-pill">Fáze 02</span>
+          <h2>Základní čtení</h2>
+          <p class="phase-tagline">Přečíst si data sám, než to udělá model</p>
+        </header>
+
+        <section>
+          <span class="label">Proč</span>
+          <p>Než se k datům dostane model, čtu je jako první já. Tohle nejde přeskočit. Bez vlastního čtení nemám s čím porovnávat — a v auditu pak nedokážu říct, co model nebo rámec přehlédly. Pořadí <em>je</em> metodologie.</p>
+          <p>Nehledám abstraktní témata. Hledám konkrétní textové události: kde si účastník protiřečí sám sobě; kde řekne nečekaně specifický detail (konkrétní úterý, přesné číslo, jméno kolegy); kde emoce neodpovídá situaci; kde se v půlce věty zarazí a opravuje se („vlastně&hellip;", „no, asi&hellip;", „takže&hellip;?"); kde sám od sebe popíše, jak něco obchází; kde opraví tazatele; kde se napříč rozhovory ozve stejná neobvyklá formulace; a kde je ticho — kde by mělo něco zaznít, ale nezazní.</p>
+        </section>
+
+        <section>
+          <span class="label">Akce</span>
+          <ol class="actions">
+            <li>
+              <input type="checkbox" id="act-2-1">
+              <label for="act-2-1"><strong>Přečíst vybrané přepisy celé</strong> — na papíře nebo ve Wordu — bez značení a kódování přímo do textu.</label>
+            </li>
+            <li>
+              <input type="checkbox" id="act-2-2">
+              <label for="act-2-2"><strong>Poznámky psát zvlášť</strong>, do bloku nebo do samostatného souboru. Zdroj zůstává čistý.</label>
+            </li>
+            <li>
+              <input type="checkbox" id="act-2-3">
+              <label for="act-2-3"><strong>Ke každému přepisu napsat odstavec dojmů.</strong> Co mě zarazilo, co působilo nedořešené, čemu jsem nerozuměl. Není to seznam kódů.</label>
+            </li>
+            <li>
+              <input type="checkbox" id="act-2-4">
+              <label for="act-2-4"><strong>Vést seznam otázek, na které zatím neumím odpovědět.</strong> V auditu budou diagnostické.</label>
+            </li>
+          </ol>
+        </section>
+
+        <aside class="risk">
+          <span class="label">Rozhodnutí · Riziko</span>
+          <p>Pokud přepis přečtu až poté, co jsem viděl výstup modelu, vlastní vnímání už mám nenávratně zkreslené. Když se v průběhu experimentu přistihnu, jak se vracím „zkontrolovat" přepis proti AI výstupu, musí to skončit v sekci limitací.</p>
+        </aside>
+      </article>
+
+      <!-- ===== PHASE 3 — Vzorkování a kotvy ===== -->
+      <article id="phase-3" class="phase">
+        <header class="phase-header">
+          <span class="phase-pill">Fáze 03</span>
+          <h2>Vzorkování a kotvy</h2>
+          <p class="phase-tagline">Ze 125 přepisů k jednomu, na kterém to ukážu</p>
+        </header>
+
+        <section>
+          <span class="label">Proč</span>
+          <p>Dataset má 125 přepisů 10minutových strukturovaných rozhovorů. Tazatel je v nich sama AI — to ovlivní každý další nález. Zpracovat všech 125 narychlo by dalo horší výsledek než pečlivě zpracovat 20. Jak vzorek vyberu, je už samo analytickou volbou.</p>
+          <p>Klíčová je kotva — jeden konkrétní přepis, který v práci ukážu z pohledu všech tří rámců vedle sebe. Nejlepší část výsledné práce bude právě tahle vrstevnatá analýza jedné věci. Kotvu vybírám tak, aby na ní rámce <em>informativně rozcházely</em> — ne aby byla dramatická, ale aby ukázala rozdíl.</p>
+        </section>
+
+        <section>
+          <span class="label">Akce</span>
+          <ol class="actions">
+            <li>
+              <input type="checkbox" id="act-3-1">
+              <label for="act-3-1"><strong>Vybrat 15&ndash;25 přepisů</strong> podle jasné logiky: hustota signálu (délka a markery jako revize, workaroundy, nesoulad emocí, specifičnost) a záměrně přidat to, co mě zaujalo v základním čtení.</label>
+            </li>
+            <li>
+              <input type="checkbox" id="act-3-2">
+              <label for="act-3-2"><strong>Logiku vzorkování zdokumentovat</strong> v metodologické sekci. „Vybral jsem N ze 125, protože X" je obhájitelné. Rovnoměrné zpracování všeho ne.</label>
+            </li>
+            <li>
+              <input type="checkbox" id="act-3-3">
+              <label for="act-3-3"><strong>Výběr kotev sepsat</strong> písemně, i se zdůvodněním.</label>
+            </li>
+          </ol>
+        </section>
+
+        <div class="anchor-callout">
+          <span class="label">Vybrané kotevní transkripty</span>
+          <dl>
+            <dt>Primární</dt>
+            <dd><code>creativity_0058</code> — spisovatelka, která píše pod několika jmény. Živý etický rozpor, který si sama řeší tím, že má „čisté" jméno a vedle něj „pen names" pro AI knihy. Přesně ten typ revize uprostřed věty („&hellip;Takže&hellip;?"). Anekdota o Disney postavě a rasové předpojatosti, která se nevejde do žádného rámce. A tiché přiznání ke ztrátě motivace, které nesedí k tomu, jak o tom mluví.</dd>
+            <dt>Sekundární</dt>
+            <dd><code>creativity_0027</code> — vinylová živnost (Cricut). Krásný neviděný rozpor: „nic se nezměnilo" a vedle toho „padl ze mě tlak".</dd>
+            <dt></dt>
+            <dd><code>creativity_0033</code> — kancelářské řemeslo a navíc trenérka AI. Až ke konci rozhovoru přiznává, že modely sama trénuje — což přerámcuje všechno předchozí. Explicitně říká: „cítím se jako podvodník".</dd>
+            <dt></dt>
+            <dd><code>creativity_0070</code> — scenárista. Případ, kdy AI vymyslela scénu z Mission Impossible, která ve filmu není. K tomu ostrá meta-poznámka o tom, jak se model omluví a otočí o 180°.</dd>
+          </dl>
+        </div>
+
+        <aside class="risk">
+          <span class="label">Rozhodnutí · Riziko</span>
+          <p>Kotva má hodnotu v tom, jak na ní rámce rozejdou — ne v tom, jak je „bohatá". Hledám přepis, na kterém je argument experimentu nejlíp vidět.</p>
+        </aside>
+      </article>
+
+      <!-- ===== PHASE 4 — Návrh promptů ===== -->
+      <article id="phase-4" class="phase">
+        <header class="phase-header">
+          <span class="phase-pill">Fáze 04</span>
+          <h2>Návrh promptů</h2>
+          <p class="phase-tagline">Jediné, co se mezi běhy mění — sepsat a zamknout</p>
+        </header>
+
+        <section>
+          <span class="label">Proč</span>
+          <p>Prompty <em>jsou</em> metodologie. Jsou to nezávislé proměnné experimentu. Tohle není „co AI dělá s daty", ale „co <em>tenhle model</em> dělá, když dostane <em>tenhle přepis</em> přes <em>tuhle čočku</em> a <em>tímhle konkrétním promptem</em>." To, co držím napevno, musí být vidět. To, co se mění, taky.</p>
+        </section>
+
+        <div class="constants">
+          <span class="label">Co držím napevno (stejné ve všech bězích)</span>
+          <ul>
+            <li>Model: Qwen3-4B-Instruct-2507 Q4_K_M</li>
+            <li>Teplota: 0.2</li>
+            <li>Kontext: celý přepis v okně (žádné štěpení)</li>
+            <li>Kostra promptu: stejná preambule, stejný formát výstupu</li>
+            <li>Vstup: identický text přepisu</li>
+          </ul>
+        </div>
+
+        <div class="variable">
+          <span class="label">Jediné, co se mění</span>
+          <p>Blok FRAMEWORK — analytická čočka, kterou pouštím dovnitř kostry.</p>
+        </div>
+
+        <section>
+          <span class="label">Šablony promptů (návrh — uzamknout po pilotu)</span>
+          <p>Všechny tři prompty mají stejnou kostru. Mění se jen blok FRAMEWORK. Sedí v jednom souboru vedle sebe — když je takhle držím pohromadě, nemůže mi do nich vlézt drobný rozdíl, který bych si pak nevšiml. Prompty jsou v angličtině, protože pracují s anglickými přepisy. Pro češtinu by se musely přeložit a pilot proběhnout znovu.</p>
+        </section>
+
+        <div class="prompt-block">
+          <div class="prompt-header">
+            <span class="prompt-name">Sdílená kostra</span>
+            <span class="prompt-status">Návrh</span>
+          </div>
+<pre><code>You are a qualitative researcher analyzing a single interview
+transcript. The transcript is between an AI interviewer and a
+creative professional discussing their use of AI in creative work.
+
+[FRAMEWORK BLOCK — varies by run]
+
+OUTPUT REQUIREMENTS (held constant):
+- Use direct quotes verbatim, with turn number
+- Mark explicitly where the participant contradicts themselves
+- Mark explicitly where stated reason and observed behavior diverge
+- Do not smooth contradictions
+- Do not impose narrative coherence the participant did not provide
+- If something is unclear or missing, mark as MISSING — do not invent
+
+Output format: structured markdown.
+
+TRANSCRIPT:
+{transcript_text}</code></pre>
+        </div>
+
+        <div class="prompt-block">
+          <div class="prompt-header">
+            <span class="prompt-name">Rámec A · Reflexivní tematická analýza</span>
+            <span class="prompt-status">Návrh</span>
+          </div>
+<pre><code>FRAMEWORK: Reflexive Thematic Analysis (Braun &amp; Clarke,
+2006/2019).
+
+Perform Phase 2 (generating initial codes) and Phase 3
+(searching for candidate themes) of reflexive TA.
+
+For each code:
+- Code name, close to the participant's language
+- Supporting quote with turn number
+- Mark as semantic (explicit) or latent (inferred)
+
+After coding, group into 3–6 candidate themes. For each theme:
+- Theme name
+- 2–3 sentence description
+- Codes included
+- Internal tensions or contradictions within the theme</code></pre>
+        </div>
+
+        <div class="prompt-block">
+          <div class="prompt-header">
+            <span class="prompt-name">Rámec B · Jobs to be Done</span>
+            <span class="prompt-status">Návrh</span>
+          </div>
+<pre><code>FRAMEWORK: Jobs-to-be-Done (Christensen / Moesta tradition).
+
+Identify the Jobs the participant has hired AI to perform.
+
+For each job:
+- Statement: "When [situation], I want to [motivation], so I
+  can [expected outcome]"
+- Supporting quotes with turn numbers
+- Forces: what pushed toward this solution? What anxieties
+  exist? What habits are being broken? What is being fired?
+- Outcome metrics (explicit or implicit)
+- Distinguish functional jobs from emotional / social jobs
+
+Be skeptical of stated reasons. Where stated reason and
+observed behavior diverge, surface the underlying job.</code></pre>
+        </div>
+
+        <div class="prompt-block">
+          <div class="prompt-header">
+            <span class="prompt-name">Rámec C · JTBD &#43; zákaznická cesta</span>
+            <span class="prompt-status">Návrh</span>
+          </div>
+<pre><code>FRAMEWORK: Jobs-to-be-Done mapped onto a Customer Journey.
+
+Map the participant's experience as a journey:
+  1. Pre-AI baseline
+  2. Trigger / first awareness
+  3. Initial trial
+  4. Integration into workflow
+  5. Current state
+  6. Future projection
+
+For each stage:
+- What was happening (with quotes, turn numbers)
+- Job(s) being performed or anticipated
+- Emotional state (with textual evidence)
+- Touchpoints and interactions
+- Pain points and delights
+
+After the journey, identify 1–3 moments of truth where the
+relationship with AI was defined. If a stage is missing from
+the transcript, mark as MISSING — do not invent.</code></pre>
+        </div>
+
+        <section>
+          <span class="label">Akce</span>
+          <ol class="actions">
+            <li>
+              <input type="checkbox" id="act-4-1">
+              <label for="act-4-1"><strong>Napsat všechny tři prompty vedle sebe</strong> v jednom souboru. Kostra je stejná, mění se jen sekce FRAMEWORK. Tak nemůže vzniknout rozdíl tam, kde nemá být.</label>
+            </li>
+            <li>
+              <input type="checkbox" id="act-4-2">
+              <label for="act-4-2"><strong>Každý prompt vyzkoušet</strong> na kotvě. Ladit do té doby, než se rámce <em>opravdu</em> rozcházejí — a ne jen vyplivnou totéž jinými slovy.</label>
+            </li>
+            <li>
+              <input type="checkbox" id="act-4-3">
+              <label for="act-4-3"><strong>Prompty uzamknout.</strong> Uložit jako soubory, cesty zmínit v příloze práce. Od téhle chvíle se neupravují — jakákoli změna znehodnotí předchozí běhy.</label>
+            </li>
+          </ol>
+        </section>
+
+        <aside class="risk">
+          <span class="label">Rozhodnutí · Riziko</span>
+          <p>Když budu prompty pouštět ručně přes chat, někde mi nepozorovaně vleze drobný rozdíl — zapomenu přepnout preset, něco překliknu. To je největší ohrožení experimentu. Řešení: pustit běhy skriptem přes LM Studio local server mode. Pak je drift strukturálně vyloučený.</p>
+        </aside>
+      </article>
+
+      <!-- ===== PHASE 5 — Pilot ===== -->
+      <article id="phase-5" class="phase">
+        <header class="phase-header">
+          <span class="phase-pill">Fáze 05</span>
+          <h2>Pilot</h2>
+          <p class="phase-tagline">Zkouška na kotvě, než pustím produkční běh</p>
+        </header>
+
+        <section>
+          <span class="label">Proč</span>
+          <p>Pilot není zkušební jízda. Je to zlomový bod, kdy se ukáže, jestli má vůbec smysl experiment dál vést. Když tři rámce vyplodí výstupy, které se liší jen slovníkem a ne podstatou, prompty nedělají to, co tvrdí — a experiment dokazuje akorát to, že rámce mají různá slova pro stejnou věc.</p>
+          <p>Kotva <code>creativity_0058</code> je terč pilotu právě proto, že má v sobě signály — rozpor, revizi v půlce věty, nesoulad emocí, neobvyklou specifičnost — které by kompetentní rámec měl chytit. Když je model nechytí pod žádnou ze tří čoček, je to samo o sobě nález. Když se rámce liší v tom, <em>které</em> signály chytí, experiment funguje.</p>
+        </section>
+
+        <section>
+          <span class="label">Akce</span>
+          <ol class="actions">
+            <li>
+              <input type="checkbox" id="act-5-1">
+              <label for="act-5-1"><strong>Pustit všechny tři prompty</strong> proti <code>creativity_0058</code>. Uložit raw výstupy do souborů s názvem rámce.</label>
+            </li>
+            <li>
+              <input type="checkbox" id="act-5-2">
+              <label for="act-5-2"><strong>Číst tři výstupy vedle sebe.</strong> U každého si položit tři otázky: co rámec ze základního čtení chytil? Co přehlédl? Co přidal navíc — co v přepisu vůbec není?</label>
+            </li>
+            <li>
+              <input type="checkbox" id="act-5-3">
+              <label for="act-5-3"><strong>Doladit prompty</strong> tam, kde se rámce rozcházejí jen povrchně. Pak znovu pilotovat. Kritérium pro stop: dokázaly by tyhle tři výstupy, dané vedle sebe, obhájit konkrétní tvrzení o rozdílu rámců před kritickým čtenářem?</label>
+            </li>
+            <li>
+              <input type="checkbox" id="act-5-4">
+              <label for="act-5-4"><strong>Uzamknout.</strong> Finální prompty uložit jako soubory a zavázat se k nim.</label>
+            </li>
+          </ol>
+        </section>
+
+        <aside class="risk">
+          <span class="label">Rozhodnutí · Riziko</span>
+          <p>Když prompty uzamknu moc brzo, srovnání bude slabé. Když budu donekonečna doladit, experiment nikdy nezačne. Pozor na zákeřnou past: prompt, který modelu předem napovídá, co má najít. Když do zadání napíšu „hledej kompartmentalizaci", model ji najde — ale pak experiment nedokazuje nic o rámcích, jen o tom, jak umím modelu položit otázku.</p>
+        </aside>
+      </article>
+
+      <!-- ===== PHASE 6 — Produkční běhy ===== -->
+      <article id="phase-6" class="phase">
+        <header class="phase-header">
+          <span class="phase-pill">Fáze 06</span>
+          <h2>Produkční běhy</h2>
+          <p class="phase-tagline">Pustit to ve smyčce přes LM Studio, ne ručně přes chat</p>
+        </header>
+
+        <section>
+          <span class="label">Proč</span>
+          <p>Mechanika hraje roli, protože celý experiment stojí na tom, že prompt je v každém běhu stejný. Když ho budu obsluhovat ručně přes chat, někde mi vleze rozdíl — zapomenu přepnout preset, něco překliknu. Skript přes LM Studio local server mode tohle riziko vyřadí.</p>
+          <p>Vzorek je malý záměrně. Malé N pečlivě udělané, s dokumentovaným výběrem a pořádným auditem, dá obhájitelnou práci. Velké N narychlo dá hluk, který vypadá jako šíře.</p>
+        </section>
+
+        <section>
+          <span class="label">Akce</span>
+          <ol class="actions">
+            <li>
+              <input type="checkbox" id="act-6-1">
+              <label for="act-6-1"><strong>Přepnout LM Studio do local server mode</strong> — OpenAI-kompatibilní API na localhostu. Ověřit, že model i parametry odpovídají uzamčenému nastavení.</label>
+            </li>
+            <li>
+              <input type="checkbox" id="act-6-2">
+              <label for="act-6-2"><strong>Napsat smyčkový skript</strong>, který každý vybraný přepis pustí přes každý ze tří promptů. Výstup uložit jako <code>{transcript_id}_{framework}.md</code>.</label>
+            </li>
+            <li>
+              <input type="checkbox" id="act-6-3">
+              <label for="act-6-3"><strong>Pustit matici.</strong> Na M2 / 8&nbsp;GB / Q4_K_M to bude zhruba 30&ndash;60 sekund na přepis. Matice 20&times;3 znamená 1 až 2 hodiny běhu na pozadí.</label>
+            </li>
+            <li>
+              <input type="checkbox" id="act-6-4">
+              <label for="act-6-4"><strong>Výstupy ukládat doslova.</strong> Neupravovat. Výstupy <em>jsou</em> data.</label>
+            </li>
+          </ol>
+        </section>
+
+        <aside class="risk">
+          <span class="label">Rozhodnutí · Riziko</span>
+          <p>Hardware bude pomalý. Bude svádět během běhu „opravit" drobnosti ve výstupech — neopravovat. Jakmile výstup upravím, přestává být důkazem. Když je výstup poškozený (ořezaný, nečitelný), pustit tu buňku celou znovu. Nelepit záplatu.</p>
+        </aside>
+      </article>
+
+      <!-- ===== PHASE 7 — Audit ===== -->
+      <article id="phase-7" class="phase">
+        <header class="phase-header">
+          <span class="phase-pill">Fáze 07</span>
+          <h2>Audit</h2>
+          <p class="phase-tagline">Co každý rámec chytil, co přehlédl, co si vymyslel</p>
+        </header>
+
+        <section>
+          <span class="label">Proč</span>
+          <p>V auditu začíná skutečná kvalitativní práce. Je to porovnání: moje poznámky ze základního čtení (Fáze 02) versus výstupy modelu (Fáze 06). Rámec po rámci, přepis po přepisu. Bez auditu zůstávají tři seznamy AI výstupů — a nic víc.</p>
+          <p>Tři otázky na každý výstup: <em>Co rámec chytil</em> z toho, co bylo v základním čtení? <em>Co přehlédl</em>? <em>Co přidal navíc</em> — co v přepisu vůbec není? Třetí otázka je nejvíc diagnostická. Když si model pod tlakem rámce vymyslí něco, co tam není, aby vyrobil pěkný výstup, ukazuje mi to, jak rámec funguje.</p>
+        </section>
+
+        <section>
+          <span class="label">Akce</span>
+          <ol class="actions">
+            <li>
+              <input type="checkbox" id="act-7-1">
+              <label for="act-7-1"><strong>Projít tříotázkový audit</strong> pro každou kombinaci přepis&times;rámec. Výsledky zapisovat do tabulky — chytil / přehlédl / přidal.</label>
+            </li>
+            <li>
+              <input type="checkbox" id="act-7-2">
+              <label for="act-7-2"><strong>Napsat porovnání kotvy.</strong> Kotevní pasáž ocitovat celou. Vedle ní ukázat, jak ji každý rámec kódoval. A pak ukázat, co základní čtení zachytilo a žádný rámec ne.</label>
+            </li>
+            <li>
+              <input type="checkbox" id="act-7-3">
+              <label for="act-7-3"><strong>Sestavit mapu absencí.</strong> Pro každý rámec vypsat, co v přepisu je, ale rámec to <em>strukturálně neumí vidět</em> — ne „nevšiml si", ale „neumí to pojmenovat, protože v jeho výbavě pro to není kategorie".</label>
+            </li>
+          </ol>
+        </section>
+
+        <aside class="risk">
+          <span class="label">Rozhodnutí · Riziko</span>
+          <p>„Rámec přehlédl X" je slabé tvrzení, pokud nedokážu ukázat, že rámec pro X ve své výbavě nemá místo. Argument je o tom, jak je rámec <em>uspořádaný</em>, ne o tom, jak je model schopný. To rozlišení musí být v textu jasné.</p>
+        </aside>
+      </article>
+
+      <!-- ===== PHASE 8 — Syntéza ===== -->
+      <article id="phase-8" class="phase">
+        <header class="phase-header">
+          <span class="phase-pill">Fáze 08</span>
+          <h2>Syntéza</h2>
+          <p class="phase-tagline">Zaujmout pozici, přiznat limity, neutíkat do obecných frází</p>
+        </header>
+
+        <section>
+          <span class="label">Proč</span>
+          <p>Tvrzení práce není „tři rámce dají různé výsledky". To je banální a předpokládal jsem to od začátku. Ostřejší tvrzení: volba rámce je rozhodnutí o tom, co uživatel vůbec <em>je</em> — a malý lokální model to dělá nepříjemně viditelným, protože framework instrukci bere jako pravidlo pro vnímání, ne jako návrh, jak data uspořádat.</p>
+          <p>Sekce limitací není povinná kolonka. Je to ta část, která dělá zbytek práce uvěřitelným.</p>
+        </section>
+
+        <section>
+          <span class="label">Akce</span>
+          <ol class="actions">
+            <li>
+              <input type="checkbox" id="act-8-1">
+              <label for="act-8-1"><strong>Nálezy napsat kolem porovnání kotvy.</strong> Začít kotevní pasáží. Konkrétní příklady jsou silnější než zametací shrnutí.</label>
+            </li>
+            <li>
+              <input type="checkbox" id="act-8-2">
+              <label for="act-8-2"><strong>Napsat sekci absencí</strong> jako odlišující příspěvek práce. Tohle je ta část, která mě posune nad běžné porovnávací cvičení.</label>
+            </li>
+            <li>
+              <input type="checkbox" id="act-8-3">
+              <label for="act-8-3"><strong>Zaujmout pozici.</strong> Říct jednou větou, čemu teď věřím. Obhájit to. Neuhýbat do „bylo by potřeba dalšího výzkumu".</label>
+            </li>
+            <li>
+              <input type="checkbox" id="act-8-4">
+              <label for="act-8-4"><strong>Limitace napsat na rovinu.</strong> Viz čtyři vlajky níže.</label>
+            </li>
+          </ol>
+        </section>
+
+        <div class="constants" style="background: var(--coral-soft);">
+          <span class="label" style="color: var(--coral-ink);">Limitace, které je třeba přiznat</span>
+          <ul style="font-family: 'General Sans', sans-serif; font-size: 14px;">
+            <li style="font-family: 'General Sans', sans-serif;"><strong>Platí jen pro tenhle aparát.</strong> Nálezy se týkají tohohle modelu, tohohle promptu a téhle aplikace. Ne „AI" obecně.</li>
+            <li style="font-family: 'General Sans', sans-serif;"><strong>Účastníci mluví podobně.</strong> Sdílejí slovník — „kontrola", „hranice", „nástroj, ne náhrada". Může to být kulturní skript o AI, nebo to do nich nasadil AI tazatel svými shrnutími. Tematická analýza je pravděpodobně vytáhne jako témata. Zčásti to jsou ale spíš artefakty než nálezy.</li>
+            <li style="font-family: 'General Sans', sans-serif;"><strong>Tazatel je sám AI.</strong> Jeho reflexivní shrnutí tvarují, co účastník řekne dál. Rámce analyzují data, která už AI předem upravila.</li>
+            <li style="font-family: 'General Sans', sans-serif;"><strong>Malé N.</strong> Síla práce je v hloubce na kotvě, ne v šíři napříč datasetem.</li>
+          </ul>
+        </div>
+
+        <aside class="risk">
+          <span class="label">Rozhodnutí · Riziko</span>
+          <p>Nejsilnější verze této práce zaujme jasnou pozici a nepřežene ji. Reflexivní krok není „na volbě rámce záleží" — to nikdo nepopírá. Je to: <em>volba rámce rozhoduje o tom, co se vůbec počítá jako nález. A malý lokální model to dělá viditelným, protože nemá kapacitu předstírat opak.</em></p>
+        </aside>
+      </article>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  // ===== ACTIVE PHASE TRACKING =====
+  const sections = document.querySelectorAll('#intro, .phase');
+  const navLinks = document.querySelectorAll('.phase-nav a');
+  const linksByHref = {};
+  navLinks.forEach(link => {
+    linksByHref[link.getAttribute('href')] = link;
+  });
+
+  let currentActive = null;
+
+  const setActive = (id) => {
+    if (currentActive === id) return;
+    navLinks.forEach(l => l.classList.remove('active'));
+    const link = linksByHref['#' + id];
+    if (link) {
+      link.classList.add('active');
+      currentActive = id;
+    }
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    const visible = entries
+      .filter(e => e.isIntersecting)
+      .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+    if (visible.length > 0) {
+      setActive(visible[0].target.id);
+    }
+  }, {
+    rootMargin: '-20% 0px -65% 0px',
+    threshold: 0
+  });
+
+  sections.forEach(s => observer.observe(s));
+  setActive('intro');
+
+  // ===== ARROW KEY NAVIGATION =====
+  const phaseOrder = ['intro', 'phase-1', 'phase-2', 'phase-3', 'phase-4', 'phase-5', 'phase-6', 'phase-7', 'phase-8'];
+
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+
+    const currentIdx = phaseOrder.indexOf(currentActive || 'intro');
+    if (currentIdx === -1) return;
+
+    const nextIdx = e.key === 'ArrowRight'
+      ? Math.min(currentIdx + 1, phaseOrder.length - 1)
+      : Math.max(currentIdx - 1, 0);
+
+    const target = document.getElementById(phaseOrder[nextIdx]);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+
+  // ===== CHECKBOX PROGRESS TRACKING =====
+  const STORAGE_KEY = 'ramecJakoCockaProgress';
+  const allCheckboxes = document.querySelectorAll('.actions input[type="checkbox"]');
+  const progressChecked = document.getElementById('progress-checked');
+  const progressTotal = document.getElementById('progress-total');
+  const progressFill = document.getElementById('progress-fill');
+
+  const updateProgress = () => {
+    const total = allCheckboxes.length;
+    const checked = document.querySelectorAll('.actions input[type="checkbox"]:checked').length;
+
+    progressChecked.textContent = checked;
+    progressTotal.textContent = total;
+    progressFill.style.width = total > 0 ? (checked / total * 100) + '%' : '0%';
+
+    // Per-phase progress
+    document.querySelectorAll('.phase-progress[data-phase]').forEach(el => {
+      const phaseNum = el.dataset.phase;
+      const phase = document.getElementById('phase-' + phaseNum);
+      if (!phase) return;
+      const phaseBoxes = phase.querySelectorAll('input[type="checkbox"]');
+      const phaseCheckedBoxes = phase.querySelectorAll('input[type="checkbox"]:checked');
+
+      if (phaseBoxes.length === 0 || phaseCheckedBoxes.length === 0) {
+        el.textContent = '';
+        el.classList.remove('has-progress', 'complete');
+      } else {
+        el.textContent = phaseCheckedBoxes.length + '/' + phaseBoxes.length;
+        el.classList.add('has-progress');
+        el.classList.toggle('complete', phaseCheckedBoxes.length === phaseBoxes.length);
+      }
+    });
+  };
+
+  const loadProgress = () => {
+    try {
+      const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      allCheckboxes.forEach(cb => {
+        if (data[cb.id]) {
+          cb.checked = true;
+          cb.closest('li').classList.add('checked');
+        }
+      });
+    } catch (e) {
+      // localStorage disabled or corrupted — fail silently, session-only mode
+    }
+    updateProgress();
+  };
+
+  const saveProgress = () => {
+    try {
+      const data = {};
+      document.querySelectorAll('.actions input[type="checkbox"]:checked').forEach(cb => {
+        data[cb.id] = true;
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch (e) {
+      // localStorage disabled — fail silently
+    }
+  };
+
+  allCheckboxes.forEach(cb => {
+    cb.addEventListener('change', () => {
+      cb.closest('li').classList.toggle('checked', cb.checked);
+      saveProgress();
+      updateProgress();
+    });
+  });
+
+  document.getElementById('reset-progress').addEventListener('click', () => {
+    if (!confirm('Smazat veškerý průběh replikace?')) return;
+    document.querySelectorAll('.actions input[type="checkbox"]:checked').forEach(cb => {
+      cb.checked = false;
+      cb.closest('li').classList.remove('checked');
+    });
+    saveProgress();
+    updateProgress();
+  });
+
+  loadProgress();
+</script>
+
+</body>
+</html>
