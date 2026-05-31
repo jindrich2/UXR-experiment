@@ -920,7 +920,11 @@
       <section id="intro" class="intro">
         <header class="intro-header">
           <span class="label">Metodologický dokument · Před spuštěním experimentu</span>
+<<<<<<< HEAD
           <h1>Zadání pro dvojitý experiment</h1>
+=======
+          <h1>Rámec jako čočka</h1>
+>>>>>>> a2efefaf51d63873c3cd002be99b47c5504e62a3
           <p class="subtitle">Tři rámce, jeden přepis, jeden malý model. Test toho, jak volba rámce mění to, co AI v datech vidí — a co naopak ne.</p>
         </header>
 
@@ -935,7 +939,11 @@
           </div>
           <div class="meta-item">
             <span class="label">Dataset</span>
+<<<<<<< HEAD
             <span>125 přepisů · rozhovory vedené AI · kreativní profesionálové (Introducing Anthropic Interviewer: What 1,250 professionals told us about working with AI)</span>
+=======
+            <span>125 přepisů · rozhovory vedené AI · kreativní profesionálové</span>
+>>>>>>> a2efefaf51d63873c3cd002be99b47c5504e62a3
           </div>
           <div class="meta-item">
             <span class="label">Porovnávané rámce</span>
@@ -964,6 +972,7 @@
           <span class="label">Model a jeho meze</span>
 
           <h3>Proč Qwen3-4B-Instruct-2507 (Q4_K_M)</h3>
+<<<<<<< HEAD
           <p>Volba je kompromis s hardwarem a daty zároveň. MacBook Air M2 s 8&nbsp;GB má v praxi volných ~5&ndash;5,5&nbsp;GB. Qwen3-4B v kvantizaci Q4_K_M zabírá ~3&nbsp;GB — vejde se s rezervou na delší kontext. Kontextové okno má nominálně 262&nbsp;144 tokenů, celý přepis rozhovoru se vejde bez štěpení.</p>
           <p>Druhý důvod je simulace práci s citlivými daty. Přepisy rozhovorů jsou citlivá osobní data. Lokální inference znamená, že žádný text neopustí zařízení — to je pro tento typ dat správná architektura bez ohledu na velikost modelu.</p>
           <p>Třetí důvod je spekulace, co když bychom museli pracovat s omezeným přístupem na internet?</p>
@@ -982,6 +991,22 @@
           <h3>Proč to není slabina experimentu, ale jeho podmínka</h3>
           <p>Cílem experimentu není otestovat nejlepší dostupný model. Je to otestovat, co se stane, když malý lokální model dostane různé analytické rámce na stejná data — a zda efekt rámce bude viditelný i přes všechna omezení modelu.</p>
           <p>Lokální provoz je podmínka daná povahou dat. Velikost modelu je podmínka daná hardwarem. Obě omezení jsou přiznaná a zdokumentovaná — a právě proto výsledky něco říkají o rámci, ne o schopnostech konkrétního modelu.</p>
+=======
+          <p>Volba je kompromis s hardwarem. MacBook Air M2 s 8&nbsp;GB má v praxi volných ~5–5,5&nbsp;GB poté, co si systém vezme svoje. Qwen3-4B v kvantizaci Q4_K_M zabírá ~3&nbsp;GB. Vejde se s rezervou na delší kontext — to potřebuju.</p>
+          <p>Aktualizace z července 2025 přinesla výrazně lepší poslušnost zadání (instruction following) a podporu 100+ jazyků včetně češtiny. V benchmarcích model porazil Gemmu 3 4B napříč všemi sledovanými kategoriemi a na RAG úlohách dosáhl 83 %. Pro analytickou práci s přepisy to stačí.</p>
+          <p>Místo MLX volím formát GGUF: pro 4B modely a delší kontext je llama.cpp backend stabilnější a rychlostně srovnatelný.</p>
+
+          <h3>Co model neumí oproti Claudu Opus</h3>
+          <ul>
+            <li><strong>Číst mezi řádky.</strong> Model zachytí to, co účastník řekne explicitně, ale často přehlédne to, co řekne nepřímo — nebo to, co nedořekne.</li>
+            <li><strong>Reflexivitu</strong> podle Braun &amp; Clarke (2019). Model neumí přemýšlet o vlastní pozici. To zůstává na člověku.</li>
+            <li><strong>Jemný kulturní kontext češtiny</strong> — idiomy, ironie, register. Občas mu uniká.</li>
+            <li><strong>Delší přepisy.</strong> Když dáte modelu víc než zhruba 10&nbsp;000 tokenů, na 8&nbsp;GB notebooku mu začne klesat pozornost. Proto pracuju s jedním přepisem najednou, ne s celým datasetem.</li>
+          </ul>
+
+          <h3>Proč to není slabina experimentu, ale jeho podmínka</h3>
+          <p>Menší model víc poslouchá zadání. Když mu řeknu „dívej se na to očima JTBD", drží se toho přísněji, než kdyby měl víc rezervy v parametrech. A přesně to potřebuju — efekt rámce má být <em>viditelný</em>. Větší model by si dovolil zadání obejít. Malý ne. Hardwarové omezení je tu nakonec metodologická výhoda, ne kompromis.</p>
+>>>>>>> a2efefaf51d63873c3cd002be99b47c5504e62a3
         </div>
 
         <!-- ===== FRAMING NOTE — Disruptive Research ===== -->
